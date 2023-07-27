@@ -9,3 +9,17 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+plantuml.jar
+
+*.swp
+*.bak
+tmp/
+
+# emacs
+.lsp-session*
+ac-comphist.dat
+custom.el
+transient/
+url/
+recentf
