@@ -8,7 +8,7 @@
 
 ;; Personalize these variables
 (setq user-full-name "David Hisel")
-(setq user-mail-address "david.hisel@cyberark.com")
+(setq user-mail-address "david.hisel@gmail.com")
 (setq user-documents-dir (expand-file-name "Documents/" (getenv "HOME")))
 
 ;; Default destination where you store Org-mode docs
