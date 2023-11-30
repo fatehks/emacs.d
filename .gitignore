@@ -17,6 +17,9 @@ plantuml.jar
 tmp/
 
 # emacs
+.cache/
+eln-cache/
+org-persist
 .lsp-session*
 ac-comphist.dat
 custom.el

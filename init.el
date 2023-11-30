@@ -1,6 +1,6 @@
 ;; ~/.emacs.d/init.el
 
-;; Time-stamp: <2023-07-24 23:12:10 david.hisel>
+;; Time-stamp: <2023-11-30 18:04:40 david.hisel>
 
 ;;; Commentary:
 
@@ -11,8 +11,11 @@
 (setq user-mail-address "david.hisel@cyberark.com")
 (setq user-documents-dir (expand-file-name "Documents/" (getenv "HOME")))
 
-;; Default destination where you store Org-mode docs
+;; Destination where you store Org-mode docs
 (setq user-org-directory (expand-file-name "org/" user-documents-dir))
+
+;; Destination where to store your todo.txt file
+(setq my:todotxt-file (expand-file-name "Documents/todo.txt" (getenv "HOME")))
 
 ;;; Code:
 
@@ -68,12 +71,14 @@
 
 ;; When shell output gets too long it pops up a buffer warning
 ;; this diables that message
-(setq warning-suppress-types (quote ((undo discard-info))))
+(setq warning-suppress-types (quote ((undo discard-info)))
+      ediff-split-window-function #'split-window-horizontally)
 
 
 ;;; Global Key Bindings
 (global-set-key (kbd "C-x o")      #'next-multiframe-window)
 (global-set-key (kbd "C-x p")      #'previous-multiframe-window)
+(global-set-key (kbd "C-h C-d")    #'treemacs)
 (global-set-key (kbd "C-h g")      #'magit-status)
 (global-set-key (kbd "C-h C-c")    #'compile)
 (global-set-key (kbd "C-h C-w")    #'clipboard-kill-ring-save)
@@ -180,6 +185,14 @@
    ("C-h C-k" . buf-move-up)
    ("C-h C-l" . buf-move-right)))
 
+;; https://github.com/todotxt/todo.txt
+;; https://github.com/rpdillon/todotxt.el
+(use-package todotxt
+  :bind
+  (("C-h t" . todotxt))
+  :custom
+  (todotxt-file my:todotxt-file))
+
 (use-package auto-complete
   :init (ac-config-default))
 
@@ -198,6 +211,7 @@
 (use-package go-mode
   :config
   (defun lsp-go-install-save-hooks ()
+    ;;(add-hook 'before-save-hook #'gofmt-before-save)
     (add-hook 'before-save-hook #'lsp-format-buffer t t)
     (add-hook 'before-save-hook #'lsp-organize-imports t t))
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
@@ -208,6 +222,9 @@
   (auto-complete-mode nil))
 (use-package lsp-mode)
 (use-package lsp-ui)
+
+;; https://github.com/dominikh/go-mode.el
+;;(setq gofmt-command "goimports")
 
 (use-package company
   :custom
