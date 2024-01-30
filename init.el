@@ -1,6 +1,6 @@
 ;; ~/.emacs.d/init.el
 
-;; Time-stamp: <2023-07-24 23:12:10 david.hisel>
+;; Time-stamp: <2024-01-30 12:25:39 fatehks>
 
 ;;; Commentary:
 
@@ -10,6 +10,7 @@
 (setq user-full-name "David Hisel")
 (setq user-mail-address "david.hisel@gmail.com")
 (setq user-documents-dir (expand-file-name "Documents/" (getenv "HOME")))
+(setq user-shell-initial-dir (expand-file-name (getenv "HOME")))
 
 ;; Default destination where you store Org-mode docs
 (setq user-org-directory (expand-file-name "org/" user-documents-dir))
@@ -29,7 +30,8 @@
       initial-buffer-choice nil
       default-tab-width 4
       c-electric-flag nil
-      time-stamp-start "\\([Dd]ated?\\|Time-stamp\\):[ \t]+\\\\?[\"<]+")
+      time-stamp-start "\\([Dd]ated?\\|[Tt]ime-stamp\\):?[ \t]+\\\\?[\"<]"
+      time-stamp-end "\\\\?[\">]")
 
 (add-hook 'before-save-hook 'time-stamp) ; time-stamp.el
 (put 'upcase-region 'disabled nil)
@@ -167,8 +169,17 @@
   :config
   (exec-path-from-shell-initialize))
 
+(defun my:shell ()
+  (interactive)
+  (let ((default-directory (expand-file-name (concat user-shell-initial-dir "/"))))
+    (shell)))
+
+(use-package magit
+  :custom
+  (magit-ediff-dwim-show-on-hunks t)
+  (ediff-split-window-function 'split-window-horizontally))
+
 (use-package hyperbole)
-(use-package magit)
 (use-package csv-mode)
 (use-package json-navigator)
 (use-package yaml-mode)
