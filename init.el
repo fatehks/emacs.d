@@ -1,6 +1,6 @@
 ;; ~/.emacs.d/init.el
 
-;; Time-stamp: <2023-11-30 18:04:40 david.hisel>
+;; Time-stamp: <2024-03-28 18:54:58 david.hisel>
 
 ;;; Commentary:
 
@@ -32,7 +32,15 @@
       initial-buffer-choice nil
       default-tab-width 4
       c-electric-flag nil
-      time-stamp-start "\\([Dd]ated?\\|Time-stamp\\):[ \t]+\\\\?[\"<]+")
+      time-stamp-start "\\(\\([cC]re\\|[uU]p[dD]\\|[dD]\\)?ated\\|[tT]ime-stamp\\|[mM]odified\\):\\([ \t]+\\)?[\"<]"
+      time-stamp-end "\\\\?[\">]")
+;; VSCode extension only has this: [cC]reated *:
+;;         [dD]ated:
+;;    [uU]p[dD]ated:
+;;       [cC]reated:
+;;      [mM]odified:
+;;    [tT]ime-stamp:
+;; (([cC]re|[uU]p[dD]|[dD])?ated|[tT]ime-stamp|[mM]odified):[ \t]+?[\"<]
 
 (add-hook 'before-save-hook 'time-stamp) ; time-stamp.el
 (put 'upcase-region 'disabled nil)
@@ -78,9 +86,12 @@
 ;;; Global Key Bindings
 (global-set-key (kbd "C-x o")      #'next-multiframe-window)
 (global-set-key (kbd "C-x p")      #'previous-multiframe-window)
+
+(global-set-key (kbd "C-h C-b")    #'browse-url-at-point)
+(global-set-key (kbd "C-h C-c")    #'compile)
 (global-set-key (kbd "C-h C-d")    #'treemacs)
 (global-set-key (kbd "C-h g")      #'magit-status)
-(global-set-key (kbd "C-h C-c")    #'compile)
+(global-set-key (kbd "C-h C-g")    #'grep-find)
 (global-set-key (kbd "C-h C-w")    #'clipboard-kill-ring-save)
 (global-set-key (kbd "C-h C-y")    #'clipboard-yank)
 (global-set-key (kbd "C-h 6") #'(lambda () ; insert date stamp at point
@@ -96,40 +107,42 @@
   				   (find-file-noselect
   				    (expand-file-name "init.el" user-emacs-directory)))))
 (global-set-key (kbd "C-h 9") #'toggle-frame-maximized)
+(global-set-key (kbd "C-h C-9") #'my:toggle-transparency)
+
+(global-set-key (kbd "C-h C-/") #'(lambda ()
+   				    (interactive)
+   				    (switch-to-buffer 
+   				     (find-file-noselect
+   				      (expand-file-name "Links.org" user-org-directory)))))
 (global-set-key (kbd "C-h C-n") #'(lambda ()
   				    (interactive)
   				    (switch-to-buffer
   				     (find-file-noselect
   				      (expand-file-name "Notes.org" user-org-directory)))))
-(global-set-key (kbd "C-h C-/") #'(lambda ()
+(global-set-key (kbd "C-h C-r") #'(lambda ()
   				    (interactive)
-  				    (switch-to-buffer 
+  				    (switch-to-buffer
   				     (find-file-noselect
-  				      (expand-file-name "links.org" user-org-directory)))))
-
+  				      (expand-file-name "Rolo.org" user-org-directory)))))
 (global-set-key (kbd "C-h C-o") #'(lambda ()
   				    (interactive)
   				    (switch-to-buffer 
   				     (find-file-noselect
   				      (read-file-name "Org File: " user-org-directory)))))
 
-(global-set-key (kbd "C-h C-b") #'browse-url-at-point)
-
-
+;; (global-set-key (kbd "C-h C-9") #'my:toggle-transparency)
 (set-frame-parameter nil 'alpha '(100 100)) ; set initial state to opaque
 (defun my:toggle-transparency ()
+  "Toggle transparency of current frame.
+   TODO: add functionality to take a parameter for transparency level"
   (interactive)
-  (if (/=
-       (cadr (frame-parameter nil 'alpha))
-       100)
+  (if (/= (cadr (frame-parameter nil 'alpha)) 100)
       (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(70 50))))
-(global-set-key (kbd "C-h C-t") #'my:toggle-transparency)
+    (set-frame-parameter nil 'alpha '(50 50))))
 
 
-;; <http://wordaligned.org/articles/ignoring-svn-directories>
+;; Based on snippet from <http://wordaligned.org/articles/ignoring-svn-directories>
 ;; Use ctrl-x backtick to jump to the right place in the matching file.
-(global-set-key (kbd "C-h C-0") #'grep-find)
 (setq grep-find-command
       "find . -path '*/.git' -prune -o -type f -print | xargs -e grep -I -n -e ")
 
@@ -172,11 +185,24 @@
   :config
   (exec-path-from-shell-initialize))
 
-(use-package hyperbole)
-(use-package magit)
+(use-package hyperbole
+  :ensure t
+  :config
+  (hyperbole-mode 1)
+  :custom
+  (hyrolo-file-list 
+   '((expand-file-name "Links.org" user-org-directory)
+     (expand-file-name "Notes.org" user-org-directory)
+     (expand-file-name "Rolo.org" user-org-directory))))
+
 (use-package csv-mode)
 (use-package json-navigator)
 (use-package yaml-mode)
+
+(use-package magit)
+(use-package magit-org-todos
+  :config
+  (magit-org-todos-autoinsert))
 
 (use-package buffer-move
   :bind
@@ -187,11 +213,47 @@
 
 ;; https://github.com/todotxt/todo.txt
 ;; https://github.com/rpdillon/todotxt.el
-(use-package todotxt
+;; (use-package todotxt
+;;   :bind
+;;   (("C-h t" . todotxt))
+;;   :custom
+;;   (todotxt-file my:todotxt-file))
+
+;; https://github.com/avillafiorita/todotxt-mode
+(use-package todotxt-mode
   :bind
-  (("C-h t" . todotxt))
+  (("C-h t" . todotxt-open-file))
+  ;; (define-key global-map "\C-ct" 'todotxt-add-todo)
+  :config
+  (setq todotxt-default-file my:todotxt-file)
+  (defun my:todotxt-open-file()
+    "Look in current dir for todo.txt file, then open default if not exist in cur dir."
+    (interactive)
+    (buffer-file-name)
+    (find-file todotxt-default-file)
+    (todotxt-mode))
+  (defalias 'todotxt-open-file 'my:todotxt-open-file))
+
+;; 
+;;  https://www.gnu.org/software/emacs/manual/html_node/use-package/Binding-in-keymaps.html
+(use-package hl-todo
   :custom
-  (todotxt-file my:todotxt-file))
+  (hl-todo-keyword-faces
+   '(("TODO"   . "#FF0000")
+     ("FIXME"  . "#FF0000")
+     ("DEBUG"  . "#A020F0")
+     ("GOTCHA" . "#FF4500")
+     ("STUB"   . "#1E90FF")))
+  
+  :bind
+  (:map hl-todo-mode-map
+	("C-c p" . hl-todo-previous)
+	("C-c n" . hl-todo-next)
+	("C-c o" . hl-todo-occur)
+	("C-c i" . hl-todo-insert)))
+
+
+
 
 (use-package auto-complete
   :init (ac-config-default))
@@ -279,7 +341,10 @@
   (markdown-command-needs-filename t)
   :config
   ;; update preview buffer when md file is saved
-  (add-hook 'before-save-hook 'markdown-live-preview-re-export))
+  (add-hook 'before-save-hook 'markdown-live-preview-re-export)
+  ;; C-c C-c a -- align table
+  (define-key markdown-mode-command-map (kbd "a") 'markdown-table-align))
+
 
 ;; Theme
 ;; https://draculatheme.com/emacs/
