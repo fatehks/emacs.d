@@ -1,6 +1,6 @@
 ;; ~/.emacs.d/init.el
 
-;; Time-stamp: <2024-01-30 12:25:39 fatehks>
+;; Time-stamp: <2024-02-06 08:36:08 fatehks>
 
 ;;; Commentary:
 
@@ -83,7 +83,7 @@
 (global-set-key (kbd "C-h 6") #'(lambda () ; insert date stamp at point
 				  (interactive)
 				  (insert (format-time-string "%Y-%m-%d %A"))))
-(global-set-key (kbd "C-h ^") #'(lambda () ; insert timestamp at point
+(global-set-key (kbd "C-h C-6") #'(lambda () ; insert timestamp at point
 				  (interactive)
 				  (insert (format-time-string "%Y-%m-%dT%H:%M:%S"))))
 (global-set-key (kbd "C-h 7") #'sql-send-region)
@@ -169,6 +169,8 @@
   :config
   (exec-path-from-shell-initialize))
 
+;; Start shell in specified dir rather than current buffer dir
+;; E.g. sometimes I want to start a shell in my home dir and not my project's dir
 (defun my:shell ()
   (interactive)
   (let ((default-directory (expand-file-name (concat user-shell-initial-dir "/"))))
@@ -184,15 +186,26 @@
 (use-package json-navigator)
 (use-package yaml-mode)
 
+(use-package easy-hugo
+  :init
+  (setq easy-hugo-basedir "~/work/fatehks/hugoblog/fxblog/")
+  (setq easy-hugo-url "https://fatehks.com")
+  (setq easy-hugo-bloglist
+	;; blog2 setting
+	'(
+	  ((easy-hugo-basedir . "~//work/fatehks/fatehks.github.io/")
+	   (easy-hugo-url . "https://fatehks.github.io"))
+	  ))
+  (setq easy-hugo-previewtime "300")
+  :bind
+  ("C-h C-e" . easy-hugo))
+
 (use-package buffer-move
   :bind
   (("C-h C-h" . buf-move-left)
    ("C-h C-j" . buf-move-down)
    ("C-h C-k" . buf-move-up)
    ("C-h C-l" . buf-move-right)))
-
-(use-package auto-complete
-  :init (ac-config-default))
 
 (use-package js2-mode
   :init
