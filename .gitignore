@@ -3,6 +3,7 @@
 
 # Packaging
 .cask
+elpa/
 
 # Backup files
 *~
@@ -23,3 +24,6 @@ custom.el
 transient/
 url/
 recentf
+.emacs.desktop
+.emacs.desktop.lock
+eln-cache/
