@@ -1,6 +1,6 @@
 ;; ~/.emacs.d/init.el
 
-;; Time-stamp: <2024-02-06 08:36:08 fatehks>
+;; Time-stamp: <2024-03-29 00:59:51 fatehks>
 
 ;;; Commentary:
 
@@ -22,6 +22,7 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
+(make-directory user-org-directory t)
 
 ;;; Startup
 (setq inhibit-startup-message t
@@ -76,42 +77,39 @@
 ;;; Global Key Bindings
 (global-set-key (kbd "C-x o")      #'next-multiframe-window)
 (global-set-key (kbd "C-x p")      #'previous-multiframe-window)
+
 (global-set-key (kbd "C-h g")      #'magit-status)
+(global-set-key (kbd "C-h C-b")    #'browse-url-at-point)
 (global-set-key (kbd "C-h C-c")    #'compile)
+(global-set-key (kbd "C-h C-n")    (lambda ()
+  				     (interactive)
+				     (my:sf "Notes.org" user-org-directory)))
+(global-set-key (kbd "C-h C-o")    (lambda ()
+  				     (interactive)
+				     (my:sf (read-file-name "Org File: " user-org-directory) user-org-directory)))
+(global-set-key (kbd "C-h C-t")    #'my:toggle-transparency)
 (global-set-key (kbd "C-h C-w")    #'clipboard-kill-ring-save)
 (global-set-key (kbd "C-h C-y")    #'clipboard-yank)
-(global-set-key (kbd "C-h 6") #'(lambda () ; insert date stamp at point
-				  (interactive)
-				  (insert (format-time-string "%Y-%m-%d %A"))))
-(global-set-key (kbd "C-h C-6") #'(lambda () ; insert timestamp at point
-				  (interactive)
-				  (insert (format-time-string "%Y-%m-%dT%H:%M:%S"))))
-(global-set-key (kbd "C-h 7") #'sql-send-region)
-(global-set-key (kbd "C-h 8") #'(lambda ()
-  				  (interactive)
-  				  (switch-to-buffer 
-  				   (find-file-noselect
-  				    (expand-file-name "init.el" user-emacs-directory)))))
-(global-set-key (kbd "C-h 9") #'toggle-frame-maximized)
-(global-set-key (kbd "C-h C-n") #'(lambda ()
-  				    (interactive)
-  				    (switch-to-buffer
-  				     (find-file-noselect
-  				      (expand-file-name "Notes.org" user-org-directory)))))
-(global-set-key (kbd "C-h C-/") #'(lambda ()
-  				    (interactive)
-  				    (switch-to-buffer 
-  				     (find-file-noselect
-  				      (expand-file-name "links.org" user-org-directory)))))
+(global-set-key (kbd "C-h C-0")    #'grep-find)
+(global-set-key (kbd "C-h 6")      (lambda () ; insert date stamp at point
+				     (interactive)
+				     (insert (format-time-string "%Y-%m-%d %A"))))
+(global-set-key (kbd "C-h C-6")    (lambda () ; insert timestamp at point
+				     (interactive)
+				     (insert (format-time-string "%Y-%m-%dT%H:%M:%S"))))
+(global-set-key (kbd "C-h 7")      #'sql-send-region)
+(global-set-key (kbd "C-h 8")      (lambda ()
+  				     (interactive)
+				     (my:sf "init.el" user-emacs-directory)))
+(global-set-key (kbd "C-h 9")      #'toggle-frame-maximized)
+(global-set-key (kbd "C-h C-/")    (lambda ()
+  				     (interactive)
+				     (my:sf "Links.org" user-org-directory)))
 
-(global-set-key (kbd "C-h C-o") #'(lambda ()
-  				    (interactive)
-  				    (switch-to-buffer 
-  				     (find-file-noselect
-  				      (read-file-name "Org File: " user-org-directory)))))
-
-(global-set-key (kbd "C-h C-b") #'browse-url-at-point)
-
+(defun my:sf (file dir)
+  (switch-to-buffer 
+   (find-file-noselect
+    (expand-file-name file dir))))
 
 (set-frame-parameter nil 'alpha '(100 100)) ; set initial state to opaque
 (defun my:toggle-transparency ()
@@ -121,12 +119,10 @@
        100)
       (set-frame-parameter nil 'alpha '(100 100))
     (set-frame-parameter nil 'alpha '(70 50))))
-(global-set-key (kbd "C-h C-t") #'my:toggle-transparency)
 
 
 ;; <http://wordaligned.org/articles/ignoring-svn-directories>
 ;; Use ctrl-x backtick to jump to the right place in the matching file.
-(global-set-key (kbd "C-h C-0") #'grep-find)
 (setq grep-find-command
       "find . -path '*/.git' -prune -o -type f -print | xargs -e grep -I -n -e ")
 
