@@ -8,7 +8,7 @@
 
 ;; Personalize these variables
 (setq user-full-name "David Hisel")
-(setq user-mail-address "david.hisel@gmail.com")
+(setq user-mail-address "me@example.com")
 (setq user-documents-dir (expand-file-name "Documents/" (getenv "HOME")))
 (setq user-shell-initial-dir (expand-file-name (getenv "HOME")))
 
